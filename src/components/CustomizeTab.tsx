@@ -430,7 +430,7 @@ export default function CustomizeTab({ initialCountry }: CustomizeTabProps) {
                 ) : (
                   <>
                     <Compass className="w-4 h-4 text-emerald-800" />
-                    <span>查找已审核路线</span>
+                    <span>生成你的徒步计划</span>
                   </>
                 )}
               </button>
