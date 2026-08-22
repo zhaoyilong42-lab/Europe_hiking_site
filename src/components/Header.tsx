@@ -1,4 +1,4 @@
-import { Compass, User, Globe, Menu, X, LogOut } from "lucide-react";
+import { Compass, User, Menu, X, LogOut } from "lucide-react";
 import { useState } from "react";
 
 interface HeaderProps {
@@ -21,13 +21,8 @@ export default function Header({ activeTab, setActiveTab, onLoginClick, username
   return (
     <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-sm border-b border-zinc-100 shadow-sm" id="main-header">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
-        {/* Left Section: Language & Login */}
+        {/* Left Section: Login */}
         <div className="flex items-center gap-4">
-          <div className="flex items-center gap-1.5 px-3 py-1.5 bg-zinc-50 border border-zinc-200 rounded-lg text-sm font-medium text-zinc-700">
-            <Globe className="w-4 h-4 text-zinc-400" />
-            <span>ZH / CN</span>
-            <span className="text-[10px] text-zinc-400">▼</span>
-          </div>
 
           {username ? <div className="flex items-center gap-2">
             <div className="flex items-center gap-2 rounded-lg bg-emerald-50 px-3 py-2 text-sm font-semibold text-emerald-900" title={`已登录：${username}`}>

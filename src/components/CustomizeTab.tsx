@@ -508,9 +508,9 @@ export default function CustomizeTab({ initialCountry }: CustomizeTabProps) {
               </div>
             )}
 
-            <div className="relative z-10 max-w-5xl text-white">
-              <h3 className="text-3xl font-black leading-tight tracking-tight sm:text-5xl">{generatedRoute.title}</h3>
-              <p className="mt-3 text-base italic text-zinc-200 sm:text-lg">{generatedRoute.description}</p>
+            <div className="relative z-10 max-w-5xl pt-24 text-white sm:pt-20 md:pt-0">
+              <h3 className="break-words text-2xl font-black leading-[1.18] tracking-tight sm:text-3xl md:text-5xl">{generatedRoute.title}</h3>
+              <p className="mt-3 text-sm leading-7 italic text-zinc-200 sm:text-base md:text-lg">{generatedRoute.description}</p>
               <p className="mt-5 text-xs text-zinc-300 sm:text-sm">📷 路线资料 · {generatedRoute.departure}</p>
             </div>
           </header>

@@ -50,6 +50,7 @@ export default function AboutUsTab({ onStartCustomise }: AboutUsTabProps) {
   const [filterDifficulty, setFilterDifficulty] = useState("all");
   const [contactCompanion, setContactCompanion] = useState<Companion | null>(null);
   const [companionPhotoIndex, setCompanionPhotoIndex] = useState(0);
+  const [galleryTouchStartX, setGalleryTouchStartX] = useState<number | null>(null);
 
   const nextPhoto = () => {
     setPhotoIndex((prev) => (prev + 1) % GALLERY_PHOTOS.length);
@@ -57,6 +58,17 @@ export default function AboutUsTab({ onStartCustomise }: AboutUsTabProps) {
 
   const prevPhoto = () => {
     setPhotoIndex((prev) => (prev === 0 ? GALLERY_PHOTOS.length - 1 : prev - 1));
+  };
+
+  const handleGalleryTouchEnd = (clientX: number) => {
+    if (galleryTouchStartX === null) return;
+    const swipeDistance = galleryTouchStartX - clientX;
+
+    if (Math.abs(swipeDistance) > 45) {
+      swipeDistance > 0 ? nextPhoto() : prevPhoto();
+    }
+
+    setGalleryTouchStartX(null);
   };
 
   // Filter companions
@@ -201,7 +213,12 @@ export default function AboutUsTab({ onStartCustomise }: AboutUsTabProps) {
         <div className="lg:col-span-5 flex justify-center">
           <div className="bg-white p-4 pb-8 rounded-2xl shadow-xl border border-zinc-100 max-w-sm w-full relative group">
             {/* Image Stage */}
-            <div className="aspect-[4/5] overflow-hidden rounded-xl bg-zinc-100 relative">
+            <div
+              className="aspect-[4/5] overflow-hidden rounded-xl bg-zinc-100 relative touch-pan-y select-none"
+              onTouchStart={(event) => setGalleryTouchStartX(event.touches[0]?.clientX ?? null)}
+              onTouchEnd={(event) => handleGalleryTouchEnd(event.changedTouches[0]?.clientX ?? 0)}
+              onTouchCancel={() => setGalleryTouchStartX(null)}
+            >
               <img
                 src={GALLERY_PHOTOS[photoIndex].url}
                 alt={GALLERY_PHOTOS[photoIndex].title}
