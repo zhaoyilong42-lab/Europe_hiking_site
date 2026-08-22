@@ -1,0 +1,48 @@
+@import "tailwindcss";
+@media print {
+  body * { visibility: hidden !important; }
+  #generated-route-container, #generated-route-container *, #route-detail-full-view, #route-detail-full-view * { visibility: visible !important; }
+  #generated-route-container, #route-detail-full-view { position: absolute; inset: 0; width: 100%; border: 0 !important; box-shadow: none !important; }
+  #route-detail-full-view { overflow: visible !important; background: white !important; }
+  .no-print { display: none !important; }
+  @page { margin: 12mm; size: A4; }
+}
+
+.route-roadbook h2[data-packing-list] + ul {
+  display: grid;
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+  gap: 0.75rem;
+  list-style: none;
+  padding: 1.25rem;
+}
+
+.route-roadbook h2[data-packing-list] + ul > li {
+  position: relative;
+  min-height: 2.75rem;
+  border: 1px solid rgb(209 213 219);
+  border-radius: 0.75rem;
+  background: white;
+  padding: 0.7rem 0.85rem 0.7rem 2.7rem;
+  font-weight: 600;
+}
+
+.route-roadbook h2[data-packing-list] + ul > li::before {
+  content: "✓";
+  position: absolute;
+  left: 0.85rem;
+  top: 0.62rem;
+  display: flex;
+  width: 1.25rem;
+  height: 1.25rem;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid rgb(5 150 105);
+  border-radius: 0.25rem;
+  color: rgb(5 150 105);
+  font-size: 0.82rem;
+  font-weight: 900;
+}
+
+@media (min-width: 640px) {
+  .route-roadbook h2[data-packing-list] + ul { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
