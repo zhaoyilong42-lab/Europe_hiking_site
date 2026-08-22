@@ -461,7 +461,18 @@ export default function CustomizeTab({ initialCountry }: CustomizeTabProps) {
       {/* Curated route presentation */}
       {!loading && generatedRoute && (
         <>
-          <div className="no-print mb-3 flex justify-end">
+          <div className="no-print mb-3 flex flex-wrap items-center justify-between gap-3">
+            {hasDatabaseMatches ? (
+              <div className="flex items-center overflow-hidden rounded-md border border-zinc-200 bg-white text-zinc-800 shadow-sm">
+                <button type="button" onClick={handlePreviousDatabaseRoute} disabled={matchedRouteIndex === 0} aria-label="上一条徒步路线" className="flex h-9 w-10 items-center justify-center hover:bg-zinc-50 disabled:opacity-35">
+                  <ChevronLeft className="h-4 w-4" />
+                </button>
+                <span className="border-x border-zinc-200 px-3 text-xs font-bold leading-9 tabular-nums">{matchedRouteIndex + 1}/{matchedRoutes.length}</span>
+                <button type="button" onClick={handleNextDatabaseRoute} disabled={!hasAnotherDatabaseRoute} aria-label="下一条徒步路线" className="flex h-9 w-10 items-center justify-center hover:bg-zinc-50 disabled:opacity-35">
+                  <ChevronRight className="h-4 w-4" />
+                </button>
+              </div>
+            ) : <span />}
             <button
               type="button"
               onClick={downloadRoutePdf}
@@ -496,17 +507,7 @@ export default function CustomizeTab({ initialCountry }: CustomizeTabProps) {
               </span>
             </div>
 
-            {hasDatabaseMatches && (
-              <div className="absolute right-6 top-24 flex items-center overflow-hidden rounded-md border border-white/25 bg-black/45 text-white shadow-sm sm:right-10 sm:top-8">
-                <button type="button" onClick={handlePreviousDatabaseRoute} disabled={matchedRouteIndex === 0} aria-label="上一条徒步路线" className="flex h-8 w-8 items-center justify-center hover:bg-white/15 disabled:opacity-35">
-                  <ChevronLeft className="h-4 w-4" />
-                </button>
-                <span className="border-x border-white/20 px-2.5 text-xs font-bold leading-8 tabular-nums">{matchedRouteIndex + 1}/{matchedRoutes.length}</span>
-                <button type="button" onClick={handleNextDatabaseRoute} disabled={!hasAnotherDatabaseRoute} aria-label="下一条徒步路线" className="flex h-8 w-8 items-center justify-center hover:bg-white/15 disabled:opacity-35">
-                  <ChevronRight className="h-4 w-4" />
-                </button>
-              </div>
-            )}
+
 
             <div className="relative z-10 max-w-5xl pt-24 text-white sm:pt-20 md:pt-0">
               <h3 className="break-words text-2xl font-black leading-[1.18] tracking-tight sm:text-3xl md:text-5xl">{generatedRoute.title}</h3>
