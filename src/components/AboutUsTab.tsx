@@ -104,7 +104,7 @@ export default function AboutUsTab({ onStartCustomise }: AboutUsTabProps) {
           {filteredCompanions.map((companion) => <article key={companion.id} className="grid overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-sm md:grid-cols-[180px_minmax(0,1fr)_180px]">
             <div className="relative min-h-44 overflow-hidden bg-gradient-to-br from-emerald-100 to-sky-100"><img src={companion.profileImage} alt={`${companion.name} 陪爬向导`} className="h-full w-full object-cover" /><span className="absolute bottom-3 right-3 rounded-full bg-emerald-700 px-2 py-1 text-[10px] font-bold text-white">★ {companion.rating}</span></div>
             <div className="p-6"><div className="flex flex-wrap items-center gap-2"><span className="rounded-md bg-emerald-100 px-2 py-1 text-xs font-bold text-emerald-800">{companion.difficulties.at(-1)} 陪爬</span><span className="text-xs text-zinc-500">{companion.languages.join(" / ")} · {companion.age} 岁</span></div><h3 className="mt-3 text-xl font-bold text-zinc-950">{companion.name}</h3><p className="mt-1 text-xs font-medium text-emerald-800">{companion.countryName} · {companion.regionName} · {companion.provinceName}</p><p className="mt-2 text-sm leading-6 text-zinc-600">{companion.bio}</p><div className="mt-4 flex flex-wrap gap-2">{companion.tags.map((tag) => <span key={tag} className="rounded-full bg-zinc-100 px-2 py-1 text-[11px] font-semibold text-zinc-600">{tag}</span>)}</div></div>
-            <div className="flex flex-col items-center justify-center gap-3 border-t border-zinc-100 p-6 md:border-l md:border-t-0"><span className="text-sm font-bold text-emerald-800">€{companion.price} / 天</span><button onClick={() => { setCompanionPhotoIndex(0); setContactCompanion(companion); }} className="inline-flex items-center gap-2 rounded-xl bg-emerald-800 px-5 py-3 text-sm font-bold text-white hover:bg-emerald-900"><MessageSquare className="h-4 w-4" /> 了解更多</button></div>
+            <div className="flex flex-col items-center justify-center gap-3 border-t border-zinc-100 p-6 md:border-l md:border-t-0"><button onClick={() => { setCompanionPhotoIndex(0); setContactCompanion(companion); }} className="inline-flex items-center gap-2 rounded-xl bg-emerald-800 px-5 py-3 text-sm font-bold text-white hover:bg-emerald-900"><MessageSquare className="h-4 w-4" /> 了解更多</button></div>
           </article>)}
           {filteredCompanions.length === 0 && <div className="rounded-2xl border border-dashed border-zinc-300 bg-white px-6 py-14 text-center text-sm text-zinc-500">暂时没有符合条件的陪爬向导，请调整筛选条件。</div>}
         </div>
@@ -396,10 +396,7 @@ export default function AboutUsTab({ onStartCustomise }: AboutUsTabProps) {
                           </div>
                         </div>
                       </div>
-                      <div className="text-right">
-                        <span className="text-xs text-zinc-500 block">费用预算</span>
-                        <span className="text-lg font-extrabold text-emerald-800">€{companion.price} <span className="text-[10px] text-zinc-500 font-normal">/日</span></span>
-                      </div>
+
                     </div>
 
                     {/* Bio */}
