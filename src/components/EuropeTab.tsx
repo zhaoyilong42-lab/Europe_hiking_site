@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
 import { ArrowRight, MapPin, Mountain, LoaderCircle } from "lucide-react";
 import { COUNTRIES, type Route } from "../data/hikingDb";
+import { loadStaticRoute, loadStaticRouteCatalog, type RouteSummary } from "../lib/staticRouteData";
 import RouteDetailView from "./RouteDetailView";
-import { supabase } from "../lib/supabase";
+
 
 const COUNTRY_FLAGS: Record<string, { src: string; alt: string }> = {
   italy: { src: "https://flagcdn.com/w640/it.png", alt: "意大利国旗" },
@@ -12,9 +13,9 @@ const COUNTRY_FLAGS: Record<string, { src: string; alt: string }> = {
   germany: { src: "https://flagcdn.com/w640/de.png", alt: "德国国旗" },
 };
 
-type Highlights = Record<string, Route[]>;
+type Highlights = Record<string, RouteSummary[]>;
 
-export default function EuropeTab({ isAuthenticated, onRequireLogin }: { isAuthenticated: boolean; onRequireLogin: () => void }) {
+export default function EuropeTab() {
   const [activeCountryId, setActiveCountryId] = useState("italy");
   const [selectedRoute, setSelectedRoute] = useState<Route | null>(null);
   const [highlights, setHighlights] = useState<Highlights>({});
@@ -22,10 +23,9 @@ export default function EuropeTab({ isAuthenticated, onRequireLogin }: { isAuthe
 
   useEffect(() => {
     let alive = true;
-    fetch("/api/europe-highlights")
-      .then((response) => (response.ok ? response.json() : Promise.reject(new Error("无法加载欧洲路线"))))
-      .then((data: { highlights?: Highlights }) => {
-        if (alive) setHighlights(data.highlights ?? {});
+    loadStaticRouteCatalog()
+      .then((data) => {
+        if (alive) setHighlights(data.highlights);
       })
       .catch(() => {
         if (alive) setHighlights({});
@@ -36,21 +36,12 @@ export default function EuropeTab({ isAuthenticated, onRequireLogin }: { isAuthe
 
   const activeCountry = COUNTRIES.find((country) => country.id === activeCountryId)!;
   const countryRoutes = useMemo(() => highlights[activeCountryId] ?? [], [activeCountryId, highlights]);
-  const openRoute = async (route: Route) => {
-    if (!isAuthenticated) {
-      onRequireLogin();
-      return;
+  const openRoute = async (route: RouteSummary) => {
+    try {
+      setSelectedRoute(await loadStaticRoute(route.id));
+    } catch {
+      // Keep the current list visible if a route file cannot be loaded.
     }
-    const session = supabase ? (await supabase.auth.getSession()).data.session : null;
-    const response = await fetch(`/api/route/${encodeURIComponent(route.id)}`, {
-      headers: session ? { Authorization: `Bearer ${session.access_token}` } : {},
-    });
-    if (!response.ok) {
-      onRequireLogin();
-      return;
-    }
-    const { route: fullRoute } = await response.json();
-    setSelectedRoute(fullRoute);
   };
 
   return (

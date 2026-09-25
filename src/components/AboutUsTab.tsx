@@ -1,6 +1,7 @@
 import { useState, type ReactNode } from "react";
 import { Compass, BookOpen, Users, Compass as MapIcon, Star, Filter, MessageSquare, Shield, CheckCircle2, ChevronLeft, ChevronRight, X } from "lucide-react";
 import { COMPANIONS, Companion } from "../data/hikingDb";
+import { assetUrl } from "../lib/siteAsset";
 
 interface AboutUsTabProps {
   onStartCustomise: () => void;
@@ -8,37 +9,37 @@ interface AboutUsTabProps {
 
 const GALLERY_PHOTOS = [
   {
-    url: "/about-gallery/lago-di-aviolo.jpg",
+    url: assetUrl("about-gallery/lago-di-aviolo.jpg"),
     title: "Lago di Aviolo · 阿维奥洛湖",
     location: "意大利 · 布雷西亚",
   },
   {
-    url: "/about-gallery/lago-di-sorapis.jpg",
+    url: assetUrl("about-gallery/lago-di-sorapis.jpg"),
     title: "Lago di Sorapis · 索拉皮斯湖",
     location: "意大利 · 多洛米蒂",
   },
   {
-    url: "/about-gallery/dolomites-knife-ridge.jpg",
+    url: assetUrl("about-gallery/dolomites-knife-ridge.jpg"),
     title: "多洛米蒂 · 刀锋山",
     location: "意大利 · 多洛米蒂",
   },
   {
-    url: "/about-gallery/dolomites-ring-road.jpg",
+    url: assetUrl("about-gallery/dolomites-ring-road.jpg"),
     title: "多洛米蒂 · 魔戒之路",
     location: "意大利 · 多洛米蒂",
   },
   {
-    url: "/about-gallery/dolomites-tre-cime.jpg",
+    url: assetUrl("about-gallery/dolomites-tre-cime.jpg"),
     title: "多洛米蒂 · 三峰山",
     location: "意大利 · 多洛米蒂",
   }
 ];
 
 const XIAOLONG_GALLERY_PHOTOS = [
-  "/companions/xiaolong.jpg",
-  "/companions/xiaolong-2.jpg",
-  "/companions/xiaolong-3.jpg",
-  "/companions/xiaolong-4.jpg",
+  assetUrl("companions/xiaolong.jpg"),
+  assetUrl("companions/xiaolong-2.jpg"),
+  assetUrl("companions/xiaolong-3.jpg"),
+  assetUrl("companions/xiaolong-4.jpg"),
 ];
 
 export default function AboutUsTab({ onStartCustomise }: AboutUsTabProps) {
@@ -84,7 +85,7 @@ export default function AboutUsTab({ onStartCustomise }: AboutUsTabProps) {
     const FilterButton = ({ active, onClick, children }: { active: boolean; onClick: () => void; children: ReactNode }) => <button onClick={onClick} className={`rounded-xl px-4 py-2 text-xs font-bold transition ${active ? "bg-zinc-950 text-white shadow-sm" : "bg-zinc-100 text-zinc-600 hover:bg-zinc-200"}`}>{children}</button>;
     return <section className="min-h-screen bg-slate-50 pb-16" id="companion-portal">
       <div className="relative isolate overflow-hidden bg-[#08090b] px-5 py-12 text-white sm:px-10 sm:py-16">
-        <img src="/companions/companion-portal-cover.jpg" alt="多洛米蒂山景" className="absolute inset-0 -z-20 h-full w-full object-cover" />
+        <img src={assetUrl("companions/companion-portal-cover.jpg")} alt="多洛米蒂山景" className="absolute inset-0 -z-20 h-full w-full object-cover" />
         <div className="absolute inset-0 -z-10 bg-gradient-to-r from-black/90 via-black/75 to-black/50" />
         <div className="mx-auto max-w-6xl">
           <button onClick={() => setShowCompanionPortal(false)} className="mb-8 inline-flex items-center gap-2 text-xs font-bold text-zinc-300 transition hover:text-white"><ChevronLeft className="h-4 w-4" /> 返回关于我们（EUROPE TREKKING）</button>
@@ -102,7 +103,7 @@ export default function AboutUsTab({ onStartCustomise }: AboutUsTabProps) {
         </div>
         <div className="mt-6 space-y-5">
           {filteredCompanions.map((companion) => <article key={companion.id} className="grid overflow-hidden rounded-2xl border border-zinc-200 bg-white shadow-sm md:grid-cols-[180px_minmax(0,1fr)_180px]">
-            <div className="relative min-h-44 overflow-hidden bg-gradient-to-br from-emerald-100 to-sky-100"><img src={companion.profileImage} alt={`${companion.name} 陪爬向导`} className="h-full w-full object-cover" /><span className="absolute bottom-3 right-3 rounded-full bg-emerald-700 px-2 py-1 text-[10px] font-bold text-white">★ {companion.rating}</span></div>
+            <div className="relative min-h-44 overflow-hidden bg-gradient-to-br from-emerald-100 to-sky-100"><img src={assetUrl(companion.profileImage ?? "")} alt={`${companion.name} 陪爬向导`} className="h-full w-full object-cover" /><span className="absolute bottom-3 right-3 rounded-full bg-emerald-700 px-2 py-1 text-[10px] font-bold text-white">★ {companion.rating}</span></div>
             <div className="p-6"><div className="flex flex-wrap items-center gap-2"><span className="rounded-md bg-emerald-100 px-2 py-1 text-xs font-bold text-emerald-800">{companion.difficulties.at(-1)} 陪爬</span><span className="text-xs text-zinc-500">{companion.languages.join(" / ")} · {companion.age} 岁</span></div><h3 className="mt-3 text-xl font-bold text-zinc-950">{companion.name}</h3><p className="mt-1 text-xs font-medium text-emerald-800">{companion.countryName} · {companion.regionName} · {companion.provinceName}</p><p className="mt-2 text-sm leading-6 text-zinc-600">{companion.bio}</p><div className="mt-4 flex flex-wrap gap-2">{companion.tags.map((tag) => <span key={tag} className="rounded-full bg-zinc-100 px-2 py-1 text-[11px] font-semibold text-zinc-600">{tag}</span>)}</div></div>
             <div className="flex flex-col items-center justify-center gap-3 border-t border-zinc-100 p-6 md:border-l md:border-t-0"><button onClick={() => { setCompanionPhotoIndex(0); setContactCompanion(companion); }} className="inline-flex items-center gap-2 rounded-xl bg-emerald-800 px-5 py-3 text-sm font-bold text-white hover:bg-emerald-900"><MessageSquare className="h-4 w-4" /> 了解更多</button></div>
           </article>)}

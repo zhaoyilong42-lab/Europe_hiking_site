@@ -1,15 +1,13 @@
-import { Compass, User, Menu, X, LogOut } from "lucide-react";
+import { Compass, Menu, X } from "lucide-react";
 import { useState } from "react";
 
 interface HeaderProps {
   activeTab: string;
   setActiveTab: (tab: string) => void;
-  onLoginClick: () => void;
-  username?: string;
-  onLogout?: () => void;
+
 }
 
-export default function Header({ activeTab, setActiveTab, onLoginClick, username, onLogout }: HeaderProps) {
+export default function Header({ activeTab, setActiveTab }: HeaderProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const tabs = [
     { id: "home", label: "首页" },
@@ -20,29 +18,7 @@ export default function Header({ activeTab, setActiveTab, onLoginClick, username
 
   return (
     <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-sm border-b border-zinc-100 shadow-sm" id="main-header">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
-        {/* Left Section: Login */}
-        <div className="flex items-center gap-4">
-
-          {username ? <div className="flex items-center gap-2">
-            <div className="flex items-center gap-2 rounded-lg bg-emerald-50 px-3 py-2 text-sm font-semibold text-emerald-900" title={`已登录：${username}`}>
-              <User className="h-4 w-4" />
-              <span className="max-w-24 truncate">{username}</span>
-            </div>
-            <button onClick={onLogout} className="flex items-center gap-1.5 rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm font-medium text-zinc-700 transition-colors hover:border-rose-200 hover:bg-rose-50 hover:text-rose-700" id="logout-btn">
-              <LogOut className="h-4 w-4" /><span className="hidden sm:inline">退出登录</span>
-            </button>
-          </div> : <button
-              onClick={onLoginClick}
-              className="flex items-center gap-2 bg-black hover:bg-zinc-800 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
-              id="login-btn"
-            >
-              <User className="w-4 h-4" />
-              <span>登录 / 注册</span>
-            </button>}
-        </div>
-
-        {/* Right Section: Navigation & CTA */}
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-end">
         <div className="flex items-center gap-6">
           <nav className="hidden md:flex items-center gap-1">
             {tabs.map((tab) => (

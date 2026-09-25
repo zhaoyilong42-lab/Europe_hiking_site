@@ -1,10 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
 import { ArrowLeft, ArrowRight, FileText, MapPin } from "lucide-react";
 import { ITALY_CITIES, type ItalyCity, type Route } from "../data/hikingDb";
+import { loadStaticRoute, loadStaticRouteCatalog, type RouteSummary } from "../lib/staticRouteData";
+import { assetUrl } from "../lib/siteAsset";
 import RouteDetailView from "./RouteDetailView";
-import { supabase } from "../lib/supabase";
 
-type RoutesByCity = Record<string, Route[]>;
+
+type RoutesByCity = Record<string, RouteSummary[]>;
 
 const difficultyTone: Record<Route["difficultyCode"], string> = {
   T1: "bg-emerald-50 text-emerald-800 border-emerald-200",
@@ -13,39 +15,29 @@ const difficultyTone: Record<Route["difficultyCode"], string> = {
   T4: "bg-rose-50 text-rose-800 border-rose-200",
 };
 
-export default function ItalyTab({ isAuthenticated, onRequireLogin }: { isAuthenticated: boolean; onRequireLogin: () => void }) {
+export default function ItalyTab() {
   const [routesByCity, setRoutesByCity] = useState<RoutesByCity>({});
   const [loading, setLoading] = useState(true);
   const [selectedCity, setSelectedCity] = useState<ItalyCity | null>(null);
   const [selectedRoute, setSelectedRoute] = useState<Route | null>(null);
 
   useEffect(() => {
-    fetch("/api/italy-city-routes")
-      .then((response) => response.ok ? response.json() : Promise.reject(new Error("读取失败")))
-      .then((data: { routesByCity?: RoutesByCity }) => setRoutesByCity(data.routesByCity ?? {}))
+    loadStaticRouteCatalog()
+      .then((data) => setRoutesByCity(data.routesByCity))
       .catch(() => setRoutesByCity({}))
       .finally(() => setLoading(false));
   }, []);
 
   const cityRoutes = useMemo(() => selectedCity ? (routesByCity[selectedCity.id] ?? []) : [], [routesByCity, selectedCity]);
   const openCity = (city: ItalyCity) => {
-    if (!isAuthenticated) {
-      onRequireLogin();
-      return;
-    }
     setSelectedCity(city);
   };
-  const openRoute = async (route: Route) => {
-    const session = supabase ? (await supabase.auth.getSession()).data.session : null;
-    const response = await fetch(`/api/route/${encodeURIComponent(route.id)}`, {
-      headers: session ? { Authorization: `Bearer ${session.access_token}` } : {},
-    });
-    if (!response.ok) {
-      onRequireLogin();
-      return;
+  const openRoute = async (route: RouteSummary) => {
+    try {
+      setSelectedRoute(await loadStaticRoute(route.id));
+    } catch {
+      // Keep the city route list visible if a route file cannot be loaded.
     }
-    const { route: fullRoute } = await response.json();
-    setSelectedRoute(fullRoute);
   };
 
   if (selectedRoute) return <RouteDetailView route={selectedRoute} onClose={() => setSelectedRoute(null)} />;
@@ -54,7 +46,7 @@ export default function ItalyTab({ isAuthenticated, onRequireLogin }: { isAuthen
     return (
       <section id="italy-city-route-list" className="min-h-screen bg-slate-50 pb-16">
         <div className="relative isolate min-h-[360px] overflow-hidden bg-emerald-950 text-white">
-          <img src={selectedCity.image} alt="" className="absolute inset-0 -z-20 h-full w-full object-cover" referrerPolicy="no-referrer" />
+          <img src={assetUrl(selectedCity.image)} alt="" className="absolute inset-0 -z-20 h-full w-full object-cover" referrerPolicy="no-referrer" />
           <div className="absolute inset-0 -z-10 bg-gradient-to-b from-black/45 via-black/65 to-slate-950" />
           <div className="mx-auto flex max-w-6xl flex-col px-6 pb-12 pt-10 sm:px-10">
             <button onClick={() => setSelectedCity(null)} className="mb-12 flex w-fit items-center gap-2 text-sm font-semibold text-white/85 transition hover:text-white" id="btn-back-to-italy-cities"><ArrowLeft className="h-4 w-4" /> 返回意大利城市</button>
@@ -83,7 +75,7 @@ export default function ItalyTab({ isAuthenticated, onRequireLogin }: { isAuthen
     <div className="mb-12 text-center"><span className="mb-2 block text-[11px] font-bold uppercase tracking-[0.18em] text-emerald-800">FEATURED HUBS & DEPARTURE POINTS</span><h2 className="text-3xl font-extrabold tracking-tight text-zinc-900 sm:text-4xl">意大利 9 大出发城市</h2><p className="mx-auto mt-3 max-w-3xl text-sm leading-6 text-zinc-500">从城市市中心出发，体验完整的徒步一日游。</p></div>
     <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
       {ITALY_CITIES.map((city) => <button key={city.id} onClick={() => openCity(city)} className="group relative min-h-[285px] overflow-hidden rounded-2xl bg-zinc-950 text-left shadow-sm transition hover:-translate-y-1 hover:shadow-xl" id={`city-card-${city.id}`}>
-        <img src={city.image} alt="" className="absolute inset-0 h-full w-full object-cover opacity-75 transition duration-500 group-hover:scale-105 group-hover:opacity-90" referrerPolicy="no-referrer" /><div className="absolute inset-0 bg-gradient-to-b from-black/20 via-black/20 to-black/95" />
+        <img src={assetUrl(city.image)} alt="" className="absolute inset-0 h-full w-full object-cover opacity-75 transition duration-500 group-hover:scale-105 group-hover:opacity-90" referrerPolicy="no-referrer" /><div className="absolute inset-0 bg-gradient-to-b from-black/20 via-black/20 to-black/95" />
         <span className="absolute left-4 top-4 rounded-md bg-black/65 px-3 py-1.5 text-[10px] font-bold tracking-wide text-white">⌾ {city.region}</span>
         <div className="absolute inset-x-5 bottom-5 text-white"><h3 className="font-serif text-4xl tracking-[0.1em]">{city.name}</h3><p className="mt-2 line-clamp-2 text-xs leading-5 text-white/85">{city.description}</p><div className="mt-4 flex items-center justify-between border-t border-white/15 pt-3 text-xs font-bold"><span className="truncate pr-3">{routesByCity[city.id]?.[0]?.title ?? city.recommendedRoute}</span><span className="shrink-0">查看路线 <ArrowRight className="inline h-3.5 w-3.5" /></span></div></div>
       </button>)}

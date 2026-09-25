@@ -6,22 +6,19 @@
 
 欧洲一日徒步路线与行程定制网站。
 
-## Run Locally
+## 本地运行
 
-**Prerequisites:**  Node.js
+需要 Node.js 22.5 或更新版本。
 
+1. 安装依赖：`npm install`
+2. 启动本地网站：`npm run dev`
 
-1. Install dependencies:
-   `npm install`
-2. Configure the Supabase values in `.env` if login and registration are needed.
-3. Run the app:
-   `npm run dev`
+路线资料会在启动或构建时自动导出为静态文件，不需要登录、Supabase、数据库服务或服务器。
 
-## Deployment
+## GitHub Pages 发布
 
-Use Node.js 22.5 or newer. Deploy the project with `package.json`,
-`package-lock.json`, and the generated `dist` directory (or deploy directly
-from the repository). Configure the platform to run `npm install`, then
-`npm run build`, and start with `npm start`. The server automatically uses the
-hosting platform's `PORT` value and reads the packaged route database from
-`dist/data/hiking-routes.db`.
+推送到 `main` 分支后，GitHub Actions 会自动构建并发布网站。
+
+首次发布时，请在 GitHub 仓库的 **Settings → Pages → Build and deployment** 中选择 **GitHub Actions**。发布成功后的网址为：
+
+`https://zhaoyilong42-lab.github.io/Europe_hiking_site/`

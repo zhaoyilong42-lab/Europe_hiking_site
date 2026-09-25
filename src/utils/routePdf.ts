@@ -130,7 +130,7 @@ function getSubtitle(route: Route) {
   return route.subtitle || route.departure;
 }
 
-function getTimetable(route: Route) {
+function getTimetable(route: Route): [string, string][] {
   const timetable = readSection(route.roadBook, "行程时间表");
   const rows = timetable.split(/\r?\n/).map((line) => line.trim()).filter(Boolean)
     .map((line) => line.match(/^(\d{1,2}:\d{2})\s+(.+)$/))

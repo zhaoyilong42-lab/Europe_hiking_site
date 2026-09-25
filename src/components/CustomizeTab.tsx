@@ -5,7 +5,8 @@ import { Compass, MapPin, Layers, Settings, Loader2, ChevronLeft, ChevronRight, 
 import { displayLocationName } from "../data/locationTranslations";
 import { createRoutePdf } from "../utils/routePdf";
 import type { Route } from "../data/hikingDb";
-import { supabase } from "../lib/supabase";
+import { loadStaticRoute, loadStaticRouteCatalog, type RouteSearchEntry, type StaticRouteCatalog } from "../lib/staticRouteData";
+
 
 interface CustomizeTabProps {
   initialCountry?: string;
@@ -114,6 +115,18 @@ const DIFFICULTIES = [
   { value: "T3", label: "进阶 (T3) - 陡峭碎石崖边，需良好体力与徒步鞋" },
 ];
 
+function meaningfulTerms(value = "") {
+  return value
+    .toLocaleLowerCase()
+    .split(/[\s()（）,，/·-]+/)
+    .map((term) => term.trim())
+    .filter((term) => term.length >= 3 && !/^(italia|france|españa|schweiz)$/.test(term));
+}
+
+function normalizeLocation(value = "") {
+  return value.toLocaleLowerCase().replace(/[\s()（）,，./·'’-]/g, "");
+}
+
 export default function CustomizeTab({ initialCountry }: CustomizeTabProps) {
   // Input states
   const [selectedCountry, setSelectedCountry] = useState<string>("italy");
@@ -121,14 +134,15 @@ export default function CustomizeTab({ initialCountry }: CustomizeTabProps) {
   const [selectedCity, setSelectedCity] = useState<string>("");
   const [selectedDifficulty, setSelectedDifficulty] = useState<string>("T2");
   const [databaseLocations, setDatabaseLocations] = useState<Record<string, Record<string, string[]>>>({});
+  const [routeCatalog, setRouteCatalog] = useState<StaticRouteCatalog | null>(null);
 
   // UI state
   const [loading, setLoading] = useState<boolean>(false);
   const [loadingStep, setLoadingStep] = useState<number>(0);
-  const [generatedRoute, setGeneratedRoute] = useState<any | null>(null);
+  const [generatedRoute, setGeneratedRoute] = useState<Route | null>(null);
   // Keep the full set returned by the database so “换一条” never repeats an
   // AI-generated result and can stop precisely at the final matching route.
-  const [matchedRoutes, setMatchedRoutes] = useState<any[]>([]);
+  const [matchedRoutes, setMatchedRoutes] = useState<RouteSearchEntry[]>([]);
   const [matchedRouteIndex, setMatchedRouteIndex] = useState(0);
   const [matchMessage, setMatchMessage] = useState("");
   const [isExportingPdf, setIsExportingPdf] = useState(false);
@@ -140,9 +154,11 @@ export default function CustomizeTab({ initialCountry }: CustomizeTabProps) {
   const provinceOptions = countryLocations[selectedRegion] || [];
 
   useEffect(() => {
-    fetch("/api/locations")
-      .then((response) => response.ok ? response.json() : Promise.reject(new Error("locations unavailable")))
-      .then((data) => setDatabaseLocations(data.locations || {}))
+    loadStaticRouteCatalog()
+      .then((data) => {
+        setRouteCatalog(data);
+        setDatabaseLocations(data.locations);
+      })
       .catch((error) => console.error("Location options error:", error));
   }, []);
 
@@ -199,6 +215,14 @@ export default function CustomizeTab({ initialCountry }: CustomizeTabProps) {
     }
   }, [loading]);
 
+  const showRoute = async (route: RouteSearchEntry) => {
+    try {
+      setGeneratedRoute(await loadStaticRoute(route.id));
+    } catch {
+      setMatchMessage("路线详情暂时无法读取，请稍后重试。");
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -211,30 +235,28 @@ export default function CustomizeTab({ initialCountry }: CustomizeTabProps) {
     const regionName = selectedRegion;
 
     try {
-      // First request every database match. Routes with the strongest location
-      // score belong to the selected country/region/province, so they form the
-      // small rotation set used by the “换一条” action below.
-      const routeSearch = new URLSearchParams({
-        country: countryName,
-        region: regionName,
-        province: selectedCity,
-        difficulty: selectedDifficulty,
-      });
-      if (!supabase) throw new Error("登录服务未配置");
-      const { data: sessionData } = await supabase.auth.getSession();
-      const matchesResponse = await fetch(`/api/routes?${routeSearch.toString()}`, {
-        headers: sessionData.session ? { Authorization: `Bearer ${sessionData.session.access_token}` } : {},
-      });
-      if (matchesResponse.ok) {
-        const { routes } = await matchesResponse.json();
-        if (Array.isArray(routes) && routes.length > 0) {
-          const highestScore = routes[0].matchScore;
-          const strongestMatches = routes.filter((route: any) => route.matchScore === highestScore);
-          setMatchedRoutes(strongestMatches);
-          setMatchedRouteIndex(0);
-          setGeneratedRoute(strongestMatches[0]);
-          return;
-        }
+      if (!routeCatalog) throw new Error("路线目录尚未加载完成");
+
+      const requestedRegion = normalizeLocation(regionName);
+      const requestedProvince = normalizeLocation(selectedCity);
+      const matches = routeCatalog.searchRoutes
+        .filter((route) => route.countryId === selectedCountry && route.difficultyCode === selectedDifficulty)
+        .filter((route) => !requestedRegion || normalizeLocation(route.location.region) === requestedRegion)
+        .filter((route) => !requestedProvince || normalizeLocation(route.location.province) === requestedProvince)
+        .map((route) => ({
+          route,
+          matchScore: meaningfulTerms(regionName).concat(meaningfulTerms(selectedCity))
+            .reduce((score, term) => score + (route.searchableText.includes(term) ? 10 : 0), 100),
+        }))
+        .sort((left, right) => right.matchScore - left.matchScore || left.route.distance.localeCompare(right.route.distance));
+
+      if (matches.length > 0) {
+        const highestScore = matches[0].matchScore;
+        const strongestMatches = matches.filter((match) => match.matchScore === highestScore).map((match) => match.route);
+        setMatchedRoutes(strongestMatches);
+        setMatchedRouteIndex(0);
+        await showRoute(strongestMatches[0]);
+        return;
       }
 
       setMatchMessage("暂未找到完全符合条件的已审核路线，请调整大区、省份或难度后重试。");
@@ -250,14 +272,14 @@ export default function CustomizeTab({ initialCountry }: CustomizeTabProps) {
     const nextIndex = matchedRouteIndex + 1;
     if (nextIndex >= matchedRoutes.length) return;
     setMatchedRouteIndex(nextIndex);
-    setGeneratedRoute(matchedRoutes[nextIndex]);
+    void showRoute(matchedRoutes[nextIndex]);
   };
 
   const handlePreviousDatabaseRoute = () => {
     const previousIndex = matchedRouteIndex - 1;
     if (previousIndex < 0) return;
     setMatchedRouteIndex(previousIndex);
-    setGeneratedRoute(matchedRoutes[previousIndex]);
+    void showRoute(matchedRoutes[previousIndex]);
   };
 
   const hasDatabaseMatches = matchedRoutes.length > 0;

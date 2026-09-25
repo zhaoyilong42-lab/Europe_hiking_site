@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from "react";
 import { ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
-import { type Route } from "../data/hikingDb";
+import { loadStaticRouteCatalog, type RouteSummary } from "../lib/staticRouteData";
 
 interface HomeTabProps {
   onStartCustomise: () => void;
@@ -13,18 +13,17 @@ const FEATURED_ROUTE_NAMES = ["多洛米蒂三峰", "采尔马特", "国王湖",
 
 export default function HomeTab({ onStartCustomise, onRouteAccess }: HomeTabProps) {
   const [currentSlide, setCurrentSlide] = useState(0);
-  const [highlights, setHighlights] = useState<Record<string, Route[]>>({});
+  const [highlights, setHighlights] = useState<Record<string, RouteSummary[]>>({});
   const [touchStartX, setTouchStartX] = useState<number | null>(null);
   const slides = useMemo(() => FEATURED_COUNTRIES.map((countryId, index) => {
     const routes = highlights[countryId] ?? [];
     const route = routes.find((item) => item.title.includes(FEATURED_ROUTE_NAMES[index])) ?? routes[0];
     return route ? { route, image: route.image, title: route.title, label: FEATURED_LABELS[index], difficulty: route.difficulty } : null;
-  }).filter((slide): slide is { route: Route; image: string; title: string; label: string; difficulty: string } => Boolean(slide)), [highlights]);
+  }).filter((slide): slide is { route: RouteSummary; image: string; title: string; label: string; difficulty: string } => Boolean(slide)), [highlights]);
 
   useEffect(() => {
-    fetch("/api/europe-highlights")
-      .then((response) => response.ok ? response.json() : Promise.reject(new Error("读取失败")))
-      .then((data: { highlights?: Record<string, Route[]> }) => setHighlights(data.highlights ?? {}))
+    loadStaticRouteCatalog()
+      .then((data) => setHighlights(data.highlights))
       .catch(() => setHighlights({}));
   }, []);
 
