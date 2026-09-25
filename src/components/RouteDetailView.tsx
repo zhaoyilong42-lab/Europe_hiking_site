@@ -2,10 +2,10 @@ import { useState } from "react";
 import ReactMarkdown from "react-markdown";
 import { 
   ArrowLeft, X, MapPin, Clock, Compass, TrendingUp, Camera, 
-  CheckSquare, Info, Car, AlertTriangle, AlertCircle, Map, Check, Download, Ruler, Gauge
+  CheckSquare, Info, Car, AlertTriangle, AlertCircle, Map, Check, Ruler, Gauge
 } from "lucide-react";
 import { Route, COUNTRIES } from "../data/hikingDb";
-import { createRoutePdf } from "../utils/routePdf";
+
 
 interface RouteDetailViewProps {
   route: Route;
@@ -170,7 +170,7 @@ export default function RouteDetailView({ route, onClose }: RouteDetailViewProps
     setCheckedGear(prev => ({ ...prev, [id]: !prev[id] }));
   };
 
-  const [isExportingPdf, setIsExportingPdf] = useState(false);
+
   const country = COUNTRIES.find((c) => c.id === route.countryId);
   const basicFacts = [
     ["出发时间", readRoadBookField(route.roadBook, "出发时间", "07:00 AM")],
@@ -185,36 +185,6 @@ export default function RouteDetailView({ route, onClose }: RouteDetailViewProps
     ["线路强度", readRoadBookField(route.roadBook, "线路强度", route.difficulty)],
   ].filter(([, value]) => value !== "待补充");
 
-  const downloadPdf = async () => {
-    const isMobileBrowser = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-    const pdfWindow = isMobileBrowser ? window.open("", "_blank") : null;
-
-    try {
-      setIsExportingPdf(true);
-      const pdfBlob = await createRoutePdf(route);
-      const url = URL.createObjectURL(pdfBlob);
-      const filename = `${route.title.replace(/[\\/:*?"<>|]/g, "-")}.pdf`;
-
-      if (pdfWindow) {
-        pdfWindow.location.href = url;
-      } else {
-        const downloadLink = document.createElement("a");
-        downloadLink.href = url;
-        downloadLink.download = filename;
-        document.body.appendChild(downloadLink);
-        downloadLink.click();
-        downloadLink.remove();
-      }
-
-      window.setTimeout(() => URL.revokeObjectURL(url), 60_000);
-    } catch (error) {
-      pdfWindow?.close();
-      console.error(error);
-      alert("PDF 导出失败，请稍后再试。");
-    } finally {
-      setIsExportingPdf(false);
-    }
-  };
 
   // Generate generic steps if route doesn't have custom ones mapped
   const getRouteSteps = (): CustomStep[] => {
@@ -299,7 +269,7 @@ export default function RouteDetailView({ route, onClose }: RouteDetailViewProps
         <div aria-hidden="true" />
 
         <div className="flex items-center gap-2 no-print">
-          <button onClick={downloadPdf} disabled={isExportingPdf} className="hidden sm:inline-flex items-center gap-1.5 rounded-lg border border-emerald-700 bg-white px-3 py-2 text-xs font-bold text-emerald-800 hover:bg-emerald-50 disabled:cursor-wait disabled:opacity-70" id="btn-export-route-pdf"><Download className="h-4 w-4" /> {isExportingPdf ? "生成中..." : "导出 PDF"}</button>
+
           <button onClick={onClose} className="w-8 h-8 sm:w-10 sm:h-10 bg-stone-100 hover:bg-stone-200/80 text-stone-600 rounded-full flex items-center justify-center transition-colors" aria-label="关闭" id="btn-close-full-view"><X className="w-4 h-4 sm:w-5 sm:h-5" /></button>
         </div>
       </header>
@@ -337,7 +307,7 @@ export default function RouteDetailView({ route, onClose }: RouteDetailViewProps
           <span className="bg-cyan-50 text-cyan-800 font-bold px-3 py-1.5 rounded-md border border-cyan-100/80 flex items-center gap-1">
             🚌 {route.departure} · 一日往返
           </span>
-          <button onClick={downloadPdf} disabled={isExportingPdf} className="sm:hidden ml-auto inline-flex items-center gap-1 rounded-md border border-emerald-700 px-2.5 py-1.5 font-bold text-emerald-800 no-print disabled:cursor-wait disabled:opacity-70"><Download className="h-3.5 w-3.5" /> {isExportingPdf ? "生成中" : "PDF"}</button>
+
         </div>
       </div>
 

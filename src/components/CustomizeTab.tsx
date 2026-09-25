@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react";
 import ReactMarkdown from "react-markdown";
 import remarkGfm from "remark-gfm";
-import { Compass, MapPin, Layers, Settings, Loader2, ChevronLeft, ChevronRight, Download } from "lucide-react";
+import { Compass, MapPin, Layers, Settings, Loader2, ChevronLeft, ChevronRight } from "lucide-react";
 import { displayLocationName } from "../data/locationTranslations";
-import { createRoutePdf } from "../utils/routePdf";
+
 import type { Route } from "../data/hikingDb";
 import { loadStaticRoute, loadStaticRouteCatalog, type RouteSearchEntry, type StaticRouteCatalog } from "../lib/staticRouteData";
 
@@ -145,7 +145,7 @@ export default function CustomizeTab({ initialCountry }: CustomizeTabProps) {
   const [matchedRoutes, setMatchedRoutes] = useState<RouteSearchEntry[]>([]);
   const [matchedRouteIndex, setMatchedRouteIndex] = useState(0);
   const [matchMessage, setMatchMessage] = useState("");
-  const [isExportingPdf, setIsExportingPdf] = useState(false);
+
 
   // Dynamic dropdown synchronization
   const countryConfig = COUNTRY_DATA[selectedCountry as keyof typeof COUNTRY_DATA] as any;
@@ -293,35 +293,6 @@ export default function CustomizeTab({ initialCountry }: CustomizeTabProps) {
   };
   const routeCountryLabel = generatedRoute?.countryId ? (countryNames[generatedRoute.countryId] || generatedRoute.countryId) : "欧洲一日徒步";
 
-  const downloadRoutePdf = async () => {
-    if (!generatedRoute) return;
-
-    const shouldDownloadFile = window.matchMedia("(max-width: 767px)").matches
-      || /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
-
-    if (shouldDownloadFile) {
-      try {
-        setIsExportingPdf(true);
-        const pdfBlob = await createRoutePdf(generatedRoute as Route);
-        const url = URL.createObjectURL(pdfBlob);
-        const downloadLink = document.createElement("a");
-        downloadLink.href = url;
-        downloadLink.download = `${String(generatedRoute.title).replace(/[\\/:*?\"<>|]/g, "-")}-徒步路书.pdf`;
-        document.body.appendChild(downloadLink);
-        downloadLink.click();
-        downloadLink.remove();
-        window.setTimeout(() => URL.revokeObjectURL(url), 1500);
-        return;
-      } finally {
-        setIsExportingPdf(false);
-      }
-    }
-
-    const originalTitle = document.title;
-    document.title = `${generatedRoute.title} - 徒步路书`;
-    window.addEventListener("afterprint", () => { document.title = originalTitle; }, { once: true });
-    window.print();
-  };
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16" id="customize-section">
@@ -495,15 +466,7 @@ export default function CustomizeTab({ initialCountry }: CustomizeTabProps) {
                 </button>
               </div>
             ) : <span />}
-            <button
-              type="button"
-              onClick={downloadRoutePdf}
-              disabled={isExportingPdf}
-              className="inline-flex items-center gap-1.5 rounded-lg bg-emerald-800 px-4 py-2.5 text-xs font-bold text-white shadow-sm transition-colors hover:bg-emerald-900"
-            >
-              <Download className="h-4 w-4" />
-              {isExportingPdf ? "正在生成 PDF..." : "下载 PDF"}
-            </button>
+
           </div>
           <article className="overflow-hidden rounded-3xl border border-zinc-200 bg-white shadow-xl" id="generated-route-container">
           <header className="relative flex min-h-[330px] items-end overflow-hidden bg-emerald-950 px-6 py-8 sm:min-h-[410px] sm:px-10 sm:py-11">
