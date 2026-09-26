@@ -68,6 +68,11 @@ Object.assign(italianCopy, {
   "Dolomiti Seceda 刀锋山（震撼山脊，风光大片）": "Seceda nelle Dolomiti (cresta spettacolare e panorami grandiosi)",
   "岁 ·": "anni ·", "岁": "anni", "男": "Uomo", "女": "Donna",
 });
+Object.assign(italianCopy, {
+  "陪爬": "Guida", "中文 / 意大利语 / 英语": "Cinese / Italiano / Inglese",
+  "返回关于我们（EUROPE TREKKING）": "Torna a Chi siamo (EUROPE TREKKING)",
+  "匹配到": "Trovate", "位陪爬员": "guide disponibili",
+});
 const chineseCopy = Object.fromEntries(Object.entries(italianCopy).map(([zh, it]) => [it, zh]));
 
 function localizeFixedCopy(value: string, locale: Locale) {
