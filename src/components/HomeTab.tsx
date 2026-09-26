@@ -1,6 +1,7 @@
 import { useState, useEffect, useMemo } from "react";
 import { ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
 import { loadStaticRouteCatalog, type RouteSummary } from "../lib/staticRouteData";
+import { useLocale } from "../lib/locale";
 
 interface HomeTabProps {
   onStartCustomise: () => void;
@@ -8,18 +9,27 @@ interface HomeTabProps {
 }
 
 const FEATURED_LABELS = ["意大利 · 三峰山", "瑞士 · 采尔马特", "德国 · 国王湖", "西班牙 · 国王步道", "法国 · 韦尔东大峡谷"];
+const ITALIAN_FEATURED_LABELS = ["Italia · Tre Cime", "Svizzera · Zermatt", "Germania · Königssee", "Spagna · Caminito del Rey", "Francia · Gole del Verdon"];
 const FEATURED_COUNTRIES = ["italy", "switzerland", "germany", "spain", "france"];
 const FEATURED_ROUTE_NAMES = ["多洛米蒂三峰", "采尔马特", "国王湖", "国王步道", "韦尔东大峡谷"];
+const ITALIAN_DIFFICULTIES = { T1: "T1 Facile", T2: "T2 Principiante", T3: "T3 Avanzato", T4: "T4 Esperto" } as const;
 
 export default function HomeTab({ onStartCustomise, onRouteAccess }: HomeTabProps) {
+  const { locale } = useLocale();
   const [currentSlide, setCurrentSlide] = useState(0);
   const [highlights, setHighlights] = useState<Record<string, RouteSummary[]>>({});
   const [touchStartX, setTouchStartX] = useState<number | null>(null);
   const slides = useMemo(() => FEATURED_COUNTRIES.map((countryId, index) => {
     const routes = highlights[countryId] ?? [];
     const route = routes.find((item) => item.title.includes(FEATURED_ROUTE_NAMES[index])) ?? routes[0];
-    return route ? { route, image: route.image, title: route.title, label: FEATURED_LABELS[index], difficulty: route.difficulty } : null;
-  }).filter((slide): slide is { route: RouteSummary; image: string; title: string; label: string; difficulty: string } => Boolean(slide)), [highlights]);
+    return route ? {
+      route,
+      image: route.image,
+      title: route.title,
+      label: locale === "it" ? ITALIAN_FEATURED_LABELS[index] : FEATURED_LABELS[index],
+      difficulty: locale === "it" ? ITALIAN_DIFFICULTIES[route.difficultyCode] : route.difficulty,
+    } : null;
+  }).filter((slide): slide is { route: RouteSummary; image: string; title: string; label: string; difficulty: string } => Boolean(slide)), [highlights, locale]);
 
   useEffect(() => {
     loadStaticRouteCatalog()
