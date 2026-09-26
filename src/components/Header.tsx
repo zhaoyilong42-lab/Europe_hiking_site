@@ -1,4 +1,5 @@
-import { Compass, Menu, X } from "lucide-react";
+import { Compass, Languages, Menu, X } from "lucide-react";
+import { useLocale } from "../lib/locale";
 import { useState } from "react";
 
 interface HeaderProps {
@@ -9,6 +10,7 @@ interface HeaderProps {
 
 export default function Header({ activeTab, setActiveTab }: HeaderProps) {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { locale, setLocale } = useLocale();
   const tabs = [
     { id: "home", label: "首页" },
     { id: "about", label: "关于我们" },
@@ -48,6 +50,11 @@ export default function Header({ activeTab, setActiveTab }: HeaderProps) {
             <Compass className="w-4 h-4" />
             <span>定制一日徒步</span>
           </button>}
+          <div className="inline-flex items-center rounded-lg border border-zinc-200 bg-white p-0.5 shadow-sm" role="group" aria-label="语言切换" data-locale-skip>
+            <Languages className="ml-2 h-3.5 w-3.5 text-zinc-500" aria-hidden="true" />
+            <button type="button" onClick={() => setLocale("zh")} className={`rounded-md px-2 py-1.5 text-xs font-bold transition-colors ${locale === "zh" ? "bg-emerald-800 text-white" : "text-zinc-600 hover:bg-zinc-100"}`} aria-pressed={locale === "zh"}>中文</button>
+            <button type="button" onClick={() => setLocale("it")} className={`rounded-md px-2 py-1.5 text-xs font-bold transition-colors ${locale === "it" ? "bg-emerald-800 text-white" : "text-zinc-600 hover:bg-zinc-100"}`} aria-pressed={locale === "it"}>IT</button>
+          </div>
           <button type="button" onClick={() => setMobileMenuOpen((open) => !open)} className="md:hidden flex h-10 w-10 items-center justify-center rounded-lg border border-zinc-200 text-zinc-700 hover:bg-zinc-50" aria-label={mobileMenuOpen ? "关闭导航菜单" : "打开导航菜单"} id="mobile-menu-btn">
             {mobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </button>

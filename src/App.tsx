@@ -6,10 +6,11 @@ import AboutUsTab from "./components/AboutUsTab";
 import EuropeTab from "./components/EuropeTab";
 import ItalyTab from "./components/ItalyTab";
 import CustomizeTab from "./components/CustomizeTab";
+import { LanguageProvider } from "./lib/locale";
 
 type TabId = "home" | "about" | "europe" | "italy" | "customize";
 
-export default function App() {
+function AppContent() {
   const [activeTab, setActiveTab] = useState<TabId>("home");
 
   const navigate = (tab: string) => {
@@ -27,7 +28,7 @@ export default function App() {
   }, []);
 
 
-  return <div className="min-h-screen bg-[#fafbfa] text-zinc-900">
+  return <div className="min-h-screen bg-[#fafbfa] text-zinc-900" data-locale-root>
     <Header activeTab={activeTab} setActiveTab={navigate} />
     <main>
       {activeTab === "home" && <HomeTab onStartCustomise={() => navigate("customize")} onRouteAccess={() => navigate("europe")} />}
@@ -39,4 +40,8 @@ export default function App() {
     <Footer onNavClick={navigate} />
 
   </div>;
+}
+
+export default function App() {
+  return <LanguageProvider><AppContent /></LanguageProvider>;
 }
