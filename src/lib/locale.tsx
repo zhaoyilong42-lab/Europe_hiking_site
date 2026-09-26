@@ -58,6 +58,16 @@ Object.assign(italianCopy, {
   "让你的每一个休息天，都能轻松出发，不负山野！": "Trasforma ogni giorno libero in una partenza verso la natura.", "点击此处，立即定制你的一日专属欧洲徒步计划": "Clicca qui per creare subito il tuo piano di trekking europeo di un giorno.", "制定一日计划": "Crea un piano di un giorno",
   "生活在意大利的户外爱好者，带你畅游伦巴第自由山野，用 Vlog 记录每一次出发的感动。": "Appassionato di outdoor che vive in Italia: esplora la Lombardia e conserva ogni avventura in un vlog.", "摄影记录": "Foto e video", "户外 Vlog": "Vlog outdoor", "布雷西亚（Brescia）": "Brescia", "伦巴第大区": "Lombardia", "多洛米蒂": "Dolomiti", "布雷西亚省（Brescia）": "Provincia di Brescia", "意大利语 / 中文 / 英语": "Italiano / Cinese / Inglese",
 });
+Object.assign(italianCopy, {
+  "• 情绪价值拉满：开朗随和，让徒步旅程不冷场。": "• Energia positiva: allegro e alla mano, per rendere piacevole ogni escursione.",
+  "• 嘎嘎出片：兼顾人物与风光构图，记录高质量徒步照片。": "• Foto curate: unisce ritratti e paesaggi per immagini di trekking di qualità.",
+  "• Vlog 记录加分：可按需记录动态镜头；介意入镜可提前说明。": "• Riprese vlog su richiesta; se preferisci non comparire, basta comunicarlo prima.",
+  "具体档期与结伴方式请在申请后与小泷确认。": "Dopo la richiesta, conferma con Xiaolong le date disponibili e le modalità per partecipare.",
+  "Lago di Aviolo（高山湖泊，绝美清澈）": "Lago di Aviolo (lago alpino dalle acque cristalline)",
+  "Dolomiti 三峰山 Tre Cime（多洛米蒂经典地标）": "Tre Cime di Lavaredo (icona classica delle Dolomiti)",
+  "Dolomiti Seceda 刀锋山（震撼山脊，风光大片）": "Seceda nelle Dolomiti (cresta spettacolare e panorami grandiosi)",
+  "岁 ·": "anni ·", "岁": "anni", "男": "Uomo", "女": "Donna",
+});
 const chineseCopy = Object.fromEntries(Object.entries(italianCopy).map(([zh, it]) => [it, zh]));
 
 function localizeFixedCopy(value: string, locale: Locale) {
